@@ -69,10 +69,14 @@ npm run deploy:cloudflare
 #### Полный деплой проекта
 
 \`\`\`bash
-# Если настроен setup_github_environment
-git remote add origin https://github.com/username/repo.git
-git branch -M main
-git push -u origin main
+# Клонировать репозиторий
+git clone https://github.com/dzhechko/genspark-ai-developer-2.0.git
+cd genspark-ai-developer-2.0
+
+# Установить зависимости и запустить
+npm install
+npm run build
+pm2 start ecosystem.config.cjs
 \`\`\`
 
 **📘 Подробные инструкции: [DEPLOYMENT.md](DEPLOYMENT.md)**
@@ -95,10 +99,17 @@ webapp/
 └── DEPLOYMENT.md          # 📘 Подробная инструкция по деплою
 \`\`\`
 
+## Ссылки
+
+- **🌐 GitHub**: https://github.com/dzhechko/genspark-ai-developer-2.0
+- **📦 Скачать**: https://page.gensparksite.com/project_backups/genspark-ai-developer-guide.tar.gz
+- **👁️ Превью**: https://3000-ikqvxi55q9mxr8kfnjgux-2e1b9533.sandbox.novita.ai
+
 ## Автор
 
 **Дмитрий Жечков**
 - Telegram: [@llm_notes](https://t.me/llm_notes)
+- GitHub: [@dzhechko](https://github.com/dzhechko)
 
 ## Лицензия
 
@@ -106,4 +117,4 @@ MIT License
 
 ## Дата создания
 
-Декабрь 2024
+22 октября 2025
