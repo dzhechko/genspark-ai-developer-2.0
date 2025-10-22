@@ -1,12 +1,808 @@
 import { Hono } from 'hono'
-import { renderer } from './renderer'
+import { serveStatic } from 'hono/cloudflare-workers'
 
 const app = new Hono()
 
-app.use(renderer)
+// Serve static files
+app.use('/static/*', serveStatic({ root: './' }))
+app.use('/favicon.ico', serveStatic({ path: './favicon.ico' }))
 
+// Main page
 app.get('/', (c) => {
-  return c.render(<h1>Hello!</h1>)
+  const currentDate = new Date().toLocaleDateString('ru-RU', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  })
+  
+  return c.html(`
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Полное руководство по работе с Genspark AI Developer 2.0 для создания мобильных Android-приложений. Интерактивное обучение с примерами.">
+        <meta name="keywords" content="Genspark AI, Flutter, Android, мобильная разработка, Firebase, обучение">
+        <meta name="author" content="Дмитрий Жечков">
+        <meta property="og:title" content="Genspark AI Developer 2.0 - Руководство">
+        <meta property="og:description" content="Интерактивное руководство по созданию Android приложений">
+        <meta property="og:type" content="website">
+        <title>Genspark AI Developer 2.0 - Полное руководство</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+        <script>
+          tailwind.config = {
+            theme: {
+              extend: {
+                colors: {
+                  primary: '#3B82F6',
+                  secondary: '#10B981',
+                  accent: '#8B5CF6'
+                }
+              }
+            }
+          }
+        </script>
+        <style>
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .fade-in {
+            animation: fadeIn 0.6s ease-out;
+          }
+          .step-card {
+            transition: all 0.3s ease;
+          }
+          .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          }
+          .progress-bar {
+            transition: width 0.5s ease;
+          }
+          html {
+            scroll-behavior: smooth;
+          }
+          .collapsed {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+          }
+          .expanded {
+            max-height: 2000px;
+            transition: max-height 0.5s ease;
+          }
+        </style>
+    </head>
+    <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-lg sticky top-0 z-50">
+            <nav class="container mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-rocket text-primary text-3xl"></i>
+                        <h1 class="text-2xl font-bold text-gray-800">Genspark AI Developer 2.0</h1>
+                    </div>
+                    <button id="darkModeToggle" class="p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-moon text-gray-600"></i>
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="container mx-auto px-4 py-12 fade-in">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                    Создавайте Android-приложения <span class="text-primary">без кода</span>
+                </h2>
+                <p class="text-xl text-gray-600 mb-6">
+                    Интерактивное руководство по работе с Genspark AI Developer 2.0
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                    <span class="text-gray-600">
+                        <i class="fas fa-user-circle mr-2"></i>
+                        Подготовил: <a href="https://t.me/llm_notes" target="_blank" class="text-primary hover:underline">Дмитрий Жечков</a>
+                    </span>
+                    <span class="hidden sm:inline text-gray-400">•</span>
+                    <span class="text-gray-600">
+                        <i class="fas fa-calendar mr-2"></i>
+                        ${currentDate}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Progress Tracker -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Ваш прогресс</h3>
+                    <span id="progressPercent" class="text-primary font-bold">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="progress-bar bg-gradient-to-r from-primary to-secondary h-3 rounded-full" style="width: 0%"></div>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">
+                    <span id="completedSteps">0</span> из <span id="totalSteps">7</span> шагов завершено
+                </p>
+            </div>
+
+            <!-- Quick Start -->
+            <div class="bg-gradient-to-r from-primary to-secondary rounded-xl shadow-lg p-8 text-white mb-8">
+                <h3 class="text-2xl font-bold mb-4">
+                    <i class="fas fa-bolt mr-2"></i>
+                    Быстрый старт
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <h4 class="font-semibold mb-2">1. Настройте проект</h4>
+                        <p class="text-sm">Задайте имя и пакет приложения</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur">
+                        <div class="text-3xl mb-2">💬</div>
+                        <h4 class="font-semibold mb-2">2. Опишите идею</h4>
+                        <p class="text-sm">Расскажите AI о вашем приложении</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur">
+                        <div class="text-3xl mb-2">📱</div>
+                        <h4 class="font-semibold mb-2">3. Получите APK</h4>
+                        <p class="text-sm">Скачайте готовое приложение</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 pb-12">
+            <!-- Step 1 -->
+            <div class="step-card bg-white rounded-xl shadow-lg p-6 mb-6" data-step="1">
+                <div class="flex items-start mb-4 cursor-pointer" onclick="toggleStep(1)">
+                    <div class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                        1
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            Настройка основ приложения
+                            <i class="fas fa-chevron-down float-right text-gray-400"></i>
+                        </h3>
+                        <p class="text-gray-600">Задайте имя и идентификатор вашего приложения</p>
+                    </div>
+                    <input type="checkbox" class="step-checkbox ml-4 w-6 h-6 text-primary" onchange="updateProgress()">
+                </div>
+                <div class="step-content expanded ml-16">
+                    <div class="bg-blue-50 border-l-4 border-primary p-4 mb-4">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Перейдите на вкладку "Publish" и установите параметры
+                        </p>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="font-semibold text-gray-700">App Name (Имя приложения):</label>
+                            <div class="bg-gray-50 p-3 rounded mt-1">
+                                <code class="text-sm">Fitness Course Manager</code>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="font-semibold text-gray-700">Package Name (Идентификатор):</label>
+                            <div class="bg-gray-50 p-3 rounded mt-1">
+                                <code class="text-sm">com.yourcompany.fitnessapp</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card bg-white rounded-xl shadow-lg p-6 mb-6" data-step="2">
+                <div class="flex items-start mb-4 cursor-pointer" onclick="toggleStep(2)">
+                    <div class="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                        2
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            Настройка хранилища данных
+                            <i class="fas fa-chevron-down float-right text-gray-400"></i>
+                        </h3>
+                        <p class="text-gray-600">Локальная база данных настроена автоматически</p>
+                    </div>
+                    <input type="checkbox" class="step-checkbox ml-4 w-6 h-6 text-secondary" onchange="updateProgress()">
+                </div>
+                <div class="step-content collapsed ml-16">
+                    <div class="bg-green-50 border-l-4 border-secondary p-4 mb-4">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            По умолчанию используется Hive - быстрая локальная база данных
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">
+                                <i class="fas fa-database text-secondary mr-2"></i>
+                                Hive (Локальное хранилище)
+                            </h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>✓ Работает без интернета</li>
+                                <li>✓ Быстрый доступ к данным</li>
+                                <li>✓ Не требует настройки</li>
+                                <li>✓ Идеально для черновиков и кеша</li>
+                            </ul>
+                        </div>
+                        <div class="border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">
+                                <i class="fas fa-cloud text-primary mr-2"></i>
+                                Firebase (Облачное хранилище)
+                            </h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>✓ Синхронизация между устройствами</li>
+                                <li>✓ Безопасное хранение</li>
+                                <li>✓ Требует настройки (Шаг 3)</li>
+                                <li>✓ Для важных данных</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card bg-white rounded-xl shadow-lg p-6 mb-6" data-step="3">
+                <div class="flex items-start mb-4 cursor-pointer" onclick="toggleStep(3)">
+                    <div class="flex-shrink-0 w-12 h-12 bg-accent text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                        3
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            Настройка Firebase (Опционально)
+                            <i class="fas fa-chevron-down float-right text-gray-400"></i>
+                        </h3>
+                        <p class="text-gray-600">Подключите облачное хранилище и авторизацию</p>
+                    </div>
+                    <input type="checkbox" class="step-checkbox ml-4 w-6 h-6 text-accent" onchange="updateProgress()">
+                </div>
+                <div class="step-content collapsed ml-16">
+                    <div class="bg-purple-50 border-l-4 border-accent p-4 mb-4">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-lightbulb mr-2"></i>
+                            Firebase нужен для: авторизации пользователей, синхронизации данных, многопользовательских функций
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Шаг 3.1: Создание проекта Firebase</h4>
+                            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                                <li>Откройте <a href="https://console.firebase.google.com" target="_blank" class="text-primary hover:underline">Firebase Console</a></li>
+                                <li>Нажмите "Create Project"</li>
+                                <li>Введите имя проекта</li>
+                                <li>Следуйте подсказкам мастера</li>
+                            </ol>
+                        </div>
+
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Шаг 3.2: Создание базы данных Firestore</h4>
+                            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                                <li>В консоли выберите: Build → Firestore Database</li>
+                                <li>Нажмите "Create Database"</li>
+                                <li>Выберите "Test mode" для начала</li>
+                            </ol>
+                        </div>
+
+                        <div class="border-l-4 border-orange-500 pl-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Шаг 3.3: Включение Authentication</h4>
+                            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                                <li>Перейдите: Authentication → Sign-in method</li>
+                                <li>Включите "Email/Password"</li>
+                                <li>При необходимости включите Google, Facebook</li>
+                            </ol>
+                        </div>
+
+                        <div class="border-l-4 border-red-500 pl-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Шаг 3.4: Загрузка Admin Key</h4>
+                            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                                <li>Project Settings → Service Accounts</li>
+                                <li>Выберите "Python"</li>
+                                <li>Нажмите "Generate new private key"</li>
+                                <li>Загрузите JSON файл на вкладке Firebase</li>
+                            </ol>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-lg p-4">
+                            <p class="text-sm text-gray-800 font-semibold">
+                                <i class="fas fa-magic mr-2 text-accent"></i>
+                                После загрузки ключа система автоматически настроит всё остальное!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-card bg-white rounded-xl shadow-lg p-6 mb-6" data-step="4">
+                <div class="flex items-start mb-4 cursor-pointer" onclick="toggleStep(4)">
+                    <div class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                        4
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            Опишите ваше приложение
+                            <i class="fas fa-chevron-down float-right text-gray-400"></i>
+                        </h3>
+                        <p class="text-gray-600">Расскажите AI, что вы хотите создать</p>
+                    </div>
+                    <input type="checkbox" class="step-checkbox ml-4 w-6 h-6 text-primary" onchange="updateProgress()">
+                </div>
+                <div class="step-content collapsed ml-16">
+                    <div class="bg-blue-50 border-l-4 border-primary p-4 mb-4">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-comments mr-2"></i>
+                            Используйте естественный язык для описания вашего приложения в чате
+                        </p>
+                    </div>
+                    
+                    <h4 class="font-semibold text-gray-800 mb-3">Примеры промптов:</h4>
+                    
+                    <div class="space-y-3">
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border-l-4 border-blue-500">
+                            <p class="text-sm font-mono text-gray-800">
+                                Создай приложение для управления фитнес-курсами, где пользователи могут просматривать курсы и записываться на занятия, с авторизацией через Firebase и облачным хранением данных.
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border-l-4 border-green-500">
+                            <p class="text-sm font-mono text-gray-800">
+                                Создай трекер личных расходов с локальным хранилищем, категориями и визуализацией данных в виде графиков.
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border-l-4 border-purple-500">
+                            <p class="text-sm font-mono text-gray-800">
+                                Создай приложение для бронирования отелей с 4 вкладками: Главная, Информация об отеле (с возможностью бронирования), Мои бронирования и Профиль. Добавь функции регистрации и входа через Firebase.
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-4 border-l-4 border-orange-500">
+                            <p class="text-sm font-mono text-gray-800">
+                                Создай приложение для обмена рецептами, где пользователи могут создавать, редактировать и делиться рецептами с фотографиями.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <h5 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                            Советы для лучших результатов:
+                        </h5>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>• Опишите основные функции приложения</li>
+                            <li>• Укажите, нужна ли авторизация пользователей</li>
+                            <li>• Определите тип хранения (локальное или облачное)</li>
+                            <li>• Упомяните важные элементы интерфейса</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step-card bg-white rounded-xl shadow-lg p-6 mb-6" data-step="5">
+                <div class="flex items-start mb-4 cursor-pointer" onclick="toggleStep(5)">
+                    <div class="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                        5
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            Предварительный просмотр и улучшения
+                            <i class="fas fa-chevron-down float-right text-gray-400"></i>
+                        </h3>
+                        <p class="text-gray-600">Тестируйте и добавляйте функции</p>
+                    </div>
+                    <input type="checkbox" class="step-checkbox ml-4 w-6 h-6 text-secondary" onchange="updateProgress()">
+                </div>
+                <div class="step-content collapsed ml-16">
+                    <div class="bg-green-50 border-l-4 border-secondary p-4 mb-4">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-eye mr-2"></i>
+                            Используйте вкладку "Preview" для просмотра приложения в реальном времени
+                        </p>
+                    </div>
+                    
+                    <h4 class="font-semibold text-gray-800 mb-3">Примеры команд для улучшения:</h4>
+                    
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <p class="text-sm font-mono text-gray-800">
+                                <i class="fas fa-search text-primary mr-2"></i>
+                                Добавь функцию поиска для быстрого нахождения курсов
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <p class="text-sm font-mono text-gray-800">
+                                <i class="fas fa-palette text-secondary mr-2"></i>
+                                Измени цветовую схему на синюю
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <p class="text-sm font-mono text-gray-800">
+                                <i class="fas fa-moon text-accent mr-2"></i>
+                                Добавь переключатель темной темы
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <p class="text-sm font-mono text-gray-800">
+                                <i class="fas fa-camera text-orange-500 mr-2"></i>
+                                Добавь загрузку фото профиля пользователя
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <p class="text-sm font-mono text-gray-800">
+                                <i class="fas fa-heart text-red-500 mr-2"></i>
+                                Создай функцию избранного
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <p class="text-sm font-mono text-gray-800">
+                                <i class="fas fa-bell text-yellow-500 mr-2"></i>
+                                Добавь push-уведомления
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h5 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-bug text-blue-500 mr-2"></i>
+                            Помощь при проблемах:
+                        </h5>
+                        <p class="text-sm text-gray-700">
+                            Если возникают проблемы с интерфейсом, отправьте скриншот в чат. AI проанализирует его и поможет исправить проблемы.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="step-card bg-white rounded-xl shadow-lg p-6 mb-6" data-step="6">
+                <div class="flex items-start mb-4 cursor-pointer" onclick="toggleStep(6)">
+                    <div class="flex-shrink-0 w-12 h-12 bg-accent text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                        6
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            Сборка приложения
+                            <i class="fas fa-chevron-down float-right text-gray-400"></i>
+                        </h3>
+                        <p class="text-gray-600">Создайте APK файл для установки на Android</p>
+                    </div>
+                    <input type="checkbox" class="step-checkbox ml-4 w-6 h-6 text-accent" onchange="updateProgress()">
+                </div>
+                <div class="step-content collapsed ml-16">
+                    <div class="bg-purple-50 border-l-4 border-accent p-4 mb-4">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-cog mr-2"></i>
+                            Перейдите на вкладку "Publish" для сборки приложения
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Шаги сборки:</h4>
+                            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-2">
+                                <li>Откройте вкладку "Publish"</li>
+                                <li>Нажмите "Build Release APK" для готового к публикации файла</li>
+                                <li>Или нажмите "Build App Bundle" для публикации в Google Play</li>
+                                <li>Дождитесь завершения сборки</li>
+                                <li>Скачайте готовый APK или AAB файл</li>
+                            </ol>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="border rounded-lg p-4 bg-blue-50">
+                                <h5 class="font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-file-archive text-primary mr-2"></i>
+                                    Release APK
+                                </h5>
+                                <p class="text-sm text-gray-600">
+                                    Готовый файл для установки на любое Android устройство. Подходит для тестирования и распространения вне магазина приложений.
+                                </p>
+                            </div>
+
+                            <div class="border rounded-lg p-4 bg-green-50">
+                                <h5 class="font-semibold text-gray-800 mb-2">
+                                    <i class="fas fa-google-play text-secondary mr-2"></i>
+                                    App Bundle
+                                </h5>
+                                <p class="text-sm text-gray-600">
+                                    Оптимизированный формат для публикации в Google Play Store. Автоматически создает версии для разных устройств.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h5 class="font-semibold text-gray-800 mb-2">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                Где находится файл?
+                            </h5>
+                            <p class="text-sm text-gray-700 mb-2">После сборки APK файл можно найти по пути:</p>
+                            <code class="text-xs bg-white p-2 block rounded">
+                                /home/user/flutter_app/build/app/outputs/flutter-apk/app-release.apk
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7 -->
+            <div class="step-card bg-white rounded-xl shadow-lg p-6 mb-6" data-step="7">
+                <div class="flex items-start mb-4 cursor-pointer" onclick="toggleStep(7)">
+                    <div class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                        7
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            Сохранение и публикация
+                            <i class="fas fa-chevron-down float-right text-gray-400"></i>
+                        </h3>
+                        <p class="text-gray-600">Сохраните проект и поделитесь результатом</p>
+                    </div>
+                    <input type="checkbox" class="step-checkbox ml-4 w-6 h-6 text-primary" onchange="updateProgress()">
+                </div>
+                <div class="step-content collapsed ml-16">
+                    <div class="bg-blue-50 border-l-4 border-primary p-4 mb-4">
+                        <p class="text-sm text-gray-700">
+                            <i class="fas fa-save mr-2"></i>
+                            Выберите способ сохранения вашего проекта
+                        </p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div class="border rounded-lg p-4 bg-gradient-to-br from-blue-50 to-indigo-50">
+                            <h5 class="font-semibold text-gray-800 mb-3">
+                                <i class="fab fa-github text-gray-800 mr-2 text-xl"></i>
+                                Вкладка "GitHub"
+                            </h5>
+                            <p class="text-sm text-gray-600 mb-3">
+                                Синхронизируйте код с облачным репозиторием для контроля версий
+                            </p>
+                            <div class="bg-white rounded p-2">
+                                <code class="text-xs text-gray-800">
+                                    Напишите в чате:<br/>
+                                    "загрузить код на github"
+                                </code>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-lg p-4 bg-gradient-to-br from-green-50 to-emerald-50">
+                            <h5 class="font-semibold text-gray-800 mb-3">
+                                <i class="fas fa-download text-gray-800 mr-2 text-xl"></i>
+                                Вкладка "Scripts"
+                            </h5>
+                            <p class="text-sm text-gray-600 mb-3">
+                                Скачайте все файлы проекта локально на ваш компьютер
+                            </p>
+                            <div class="bg-white rounded p-2">
+                                <code class="text-xs text-gray-800">
+                                    Резервное копирование<br/>
+                                    и скачивание проекта
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 p-4 rounded">
+                        <h5 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-rocket text-orange-500 mr-2"></i>
+                            Готово к запуску!
+                        </h5>
+                        <p class="text-sm text-gray-700">
+                            Теперь вы можете установить APK на свое Android устройство и начать использовать приложение. Поздравляем с созданием вашего первого приложения! 🎉
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Resources -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-book text-primary mr-2"></i>
+                    Дополнительные ресурсы
+                </h3>
+                
+                <div class="grid md:grid-cols-3 gap-4">
+                    <a href="https://flutter.dev" target="_blank" class="block p-4 border rounded-lg hover:shadow-md transition">
+                        <i class="fas fa-external-link-alt text-primary mb-2"></i>
+                        <h4 class="font-semibold text-gray-800 mb-1">Flutter Docs</h4>
+                        <p class="text-sm text-gray-600">Официальная документация Flutter</p>
+                    </a>
+
+                    <a href="https://dart.dev" target="_blank" class="block p-4 border rounded-lg hover:shadow-md transition">
+                        <i class="fas fa-code text-secondary mb-2"></i>
+                        <h4 class="font-semibold text-gray-800 mb-1">Dart Language</h4>
+                        <p class="text-sm text-gray-600">Язык программирования Dart</p>
+                    </a>
+
+                    <a href="https://firebase.google.com" target="_blank" class="block p-4 border rounded-lg hover:shadow-md transition">
+                        <i class="fas fa-fire text-orange-500 mb-2"></i>
+                        <h4 class="font-semibold text-gray-800 mb-1">Firebase</h4>
+                        <p class="text-sm text-gray-600">Документация Firebase Services</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl shadow-lg p-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>
+                    Полезные советы
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-comments text-primary mr-2"></i>
+                            Обращайтесь к AI за помощью
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Используйте чат для разработки и генерации кода. AI поможет на каждом этапе.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-folder-open text-secondary mr-2"></i>
+                            Изучайте структуру проекта
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Используйте файловый браузер для изучения структуры и редактирования кода.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-vial text-accent mr-2"></i>
+                            Тестируйте часто
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Используйте веб-превью для отладки перед сборкой APK.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-mobile-alt text-orange-500 mr-2"></i>
+                            Тестируйте на реальных устройствах
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Собирайте APK когда готовы тестировать на реальных Android устройствах.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-camera text-blue-500 mr-2"></i>
+                            Используйте скриншоты
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Отправляйте скриншоты страниц в чат, и AI поможет исправить проблемы интерфейса.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">
+                            <i class="fas fa-edit text-green-500 mr-2"></i>
+                            Итеративная разработка
+                        </h4>
+                        <p class="text-sm text-gray-600">
+                            Добавляйте и модифицируйте функции через диалог в чате.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-8 mt-12">
+            <div class="container mx-auto px-4 text-center">
+                <p class="mb-2">
+                    Подготовил: <a href="https://t.me/llm_notes" target="_blank" class="text-primary hover:underline">Дмитрий Жечков</a>
+                </p>
+                <p class="text-gray-400 text-sm">${currentDate}</p>
+                <div class="mt-4">
+                    <a href="https://t.me/llm_notes" target="_blank" class="inline-block mx-2 text-2xl hover:text-primary transition">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+        <!-- JavaScript -->
+        <script>
+            // Progress tracking
+            let completedSteps = 0;
+            const totalSteps = 7;
+
+            function updateProgress() {
+                const checkboxes = document.querySelectorAll('.step-checkbox');
+                completedSteps = Array.from(checkboxes).filter(cb => cb.checked).length;
+                
+                const percentage = Math.round((completedSteps / totalSteps) * 100);
+                
+                document.getElementById('progressBar').style.width = percentage + '%';
+                document.getElementById('progressPercent').textContent = percentage + '%';
+                document.getElementById('completedSteps').textContent = completedSteps;
+                
+                // Save progress to localStorage
+                const progress = Array.from(checkboxes).map(cb => cb.checked);
+                localStorage.setItem('learningProgress', JSON.stringify(progress));
+            }
+
+            // Load saved progress
+            window.addEventListener('DOMContentLoaded', () => {
+                const saved = localStorage.getItem('learningProgress');
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    const checkboxes = document.querySelectorAll('.step-checkbox');
+                    checkboxes.forEach((cb, index) => {
+                        if (progress[index]) {
+                            cb.checked = true;
+                        }
+                    });
+                    updateProgress();
+                }
+            });
+
+            // Toggle step content
+            function toggleStep(stepNumber) {
+                const card = document.querySelector(\`[data-step="\${stepNumber}"]\`);
+                const content = card.querySelector('.step-content');
+                const icon = card.querySelector('.fa-chevron-down');
+                
+                if (content.classList.contains('collapsed')) {
+                    content.classList.remove('collapsed');
+                    content.classList.add('expanded');
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    content.classList.remove('expanded');
+                    content.classList.add('collapsed');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            }
+
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            let isDarkMode = false;
+
+            darkModeToggle.addEventListener('click', () => {
+                isDarkMode = !isDarkMode;
+                if (isDarkMode) {
+                    document.body.classList.add('dark');
+                    darkModeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+                } else {
+                    document.body.classList.remove('dark');
+                    darkModeToggle.innerHTML = '<i class="fas fa-moon text-gray-600"></i>';
+                }
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // Initialize total steps counter
+            document.getElementById('totalSteps').textContent = totalSteps;
+        </script>
+    </body>
+    </html>
+  `)
 })
 
 export default app
