@@ -102,8 +102,6 @@ webapp/
 ## Ссылки
 
 - **🌐 GitHub**: https://github.com/dzhechko/genspark-ai-developer-2.0
-- **📦 Скачать**: https://page.gensparksite.com/project_backups/genspark-ai-developer-guide.tar.gz
-- **👁️ Превью**: https://3000-ikqvxi55q9mxr8kfnjgux-2e1b9533.sandbox.novita.ai
 
 ## Автор
 
