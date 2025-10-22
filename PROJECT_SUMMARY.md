@@ -28,9 +28,7 @@
 
 ### 🔗 Ссылки
 
-- **Живой предпросмотр**: https://3000-ikqvxi55q9mxr8kfnjgux-2e1b9533.sandbox.novita.ai
-- **Архив проекта**: https://page.gensparksite.com/project_backups/genspark-ai-developer-guide.tar.gz
-- **Размер архива**: 104 KB
+- **GitHub репозиторий**: https://github.com/dzhechko/genspark-ai-developer-2.0
 
 ### 📁 Структура файлов
 
@@ -120,8 +118,7 @@ d58c340 Initial commit
 
 ## 🚀 Что делать дальше?
 
-1. **Скачайте проект**: [genspark-ai-developer-guide.tar.gz](https://page.gensparksite.com/project_backups/genspark-ai-developer-guide.tar.gz)
-2. **Следуйте инструкции**: [QUICKSTART.md](QUICKSTART.md)
+1. **Следуйте инструкции**: [QUICKSTART.md](QUICKSTART.md)
 3. **Опубликуйте на GitHub Pages**
 4. **Поделитесь ссылкой!**
 
